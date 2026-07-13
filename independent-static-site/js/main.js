@@ -156,7 +156,18 @@
       slider.addEventListener('mouseenter', stopAutoplay);
       slider.addEventListener('mouseleave', startAutoplay);
       slider.addEventListener('focusin', stopAutoplay);
-      slider.addEventListener('focusout', startAutoplay);
+      // focusin/focusout fire on every focus change between the slider's own
+      // children too (both arrows + every dot are real buttons), not just when
+      // focus truly enters/leaves the component. Without checking relatedTarget,
+      // tabbing between those controls tears the interval down and recreates it
+      // on every single move, making autoplay's effective timing depend on
+      // whenever that last happened instead of a steady delay - only resume
+      // when focus is actually moving outside the slider.
+      slider.addEventListener('focusout', function (e) {
+        if (!slider.contains(e.relatedTarget)) {
+          startAutoplay();
+        }
+      });
 
       if (!disableSwipe) {
         var startX = null;
