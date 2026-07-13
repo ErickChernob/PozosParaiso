@@ -1,0 +1,28 @@
+# Pozos Paraiso - Apache configuration for shared hosting (Hostinger/GoDaddy public_html).
+# Domain below is inferred from the site's published email addresses (@pozosparaiso.com) -
+# confirm the real production domain and update the two RewriteCond lines if different.
+# See MIGRATION_NOTES.md.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS.
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Force non-www (choose the www variant instead if the domain is meant to be canonical as www).
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Custom 404 page.
+ErrorDocument 404 /404.html
+
+# Prevent directory listing.
+Options -Indexes
+
+# No legacy Webflow subdomain/path redirects are defined: this project was exported
+# directly from the Webflow Designer and was never live on a webflow.io subdomain
+# with a different URL structure, so there is nothing to redirect from. If the site
+# previously lived elsewhere with different URLs, add explicit Redirect/RewriteRule
+# lines here before launch.

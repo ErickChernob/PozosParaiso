@@ -1,0 +1,221 @@
+/* Custom interactions.css
+   Replaces the behaviors that used to depend on webflow.js (Webflow "IX1" engine
+   and the navbar/slider modules). Loaded after normalize.css / base.css / style.css.
+
+   Progressive enhancement: the ".js" class is only added to <html> by an inline
+   bootstrap script in <head> once JavaScript is confirmed running (see the pages'
+   <head>). If JavaScript fails or is disabled, none of the "hidden until revealed"
+   rules below apply, so all content stays visible and the mobile menu, while not
+   animated, remains a normal, always-visible block of links. */
+
+/* ---------- Scroll-reveal (was Webflow IX1: title-slide-in-1/2, services-slide-up-1..4) ---------- */
+/* Only elements the site actually uses are wired up; see MIGRATION_NOTES.md for the
+   full extracted interaction data, including definitions Webflow shipped but that no
+   page ever referenced (fade-in-on-scroll, preloader-fade-out, page-load-fade-in,
+   social-icon). */
+
+.js [data-ix="title-slide-in-1"] {
+  opacity: 0;
+  transform: translate(0, 50px);
+}
+.js [data-ix="title-slide-in-1"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 500ms ease 250ms, opacity 750ms ease 250ms;
+}
+
+.js [data-ix="title-slide-in-2"] {
+  opacity: 0;
+  transform: translate(-50px, 0);
+}
+.js [data-ix="title-slide-in-2"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 750ms ease 750ms, opacity 750ms ease 750ms;
+}
+
+.js [data-ix="services-slide-up-1"] {
+  opacity: 0;
+  transform: translate(0, 100px);
+}
+.js [data-ix="services-slide-up-1"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 750ms ease 250ms, opacity 750ms ease 250ms;
+}
+
+.js [data-ix="services-slide-up-2"] {
+  opacity: 0;
+  transform: translate(0, 100px);
+}
+.js [data-ix="services-slide-up-2"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 750ms ease 750ms, opacity 750ms ease 750ms;
+}
+
+.js [data-ix="services-slide-up-3"] {
+  opacity: 0;
+  transform: translate(0, 100px);
+}
+.js [data-ix="services-slide-up-3"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 750ms ease 1250ms, opacity 750ms ease 1250ms;
+}
+
+.js [data-ix="services-slide-up-4"] {
+  opacity: 0;
+  transform: translate(0, 100px);
+}
+.js [data-ix="services-slide-up-4"].is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: transform 750ms ease 1600ms, opacity 750ms ease 1600ms;
+}
+
+/* ---------- Hover-scale (was Webflow IX1: "Portfolio Interaction", hover trigger on .white) ---------- */
+/* Pure CSS replacement - no JS needed. Overrides style.css's ".white { transform: none }"
+   on :hover only, via higher selector specificity, so the base rule is untouched. */
+.white {
+  transition: transform 400ms ease;
+}
+.white:hover {
+  transform: scale(1.25);
+}
+/* The hero subtitle is both ".white" (hover-scale) and a scroll-reveal target
+   (data-ix="title-slide-in-2"), and both features set `transform` *and*
+   `transition`. The reveal rule is more specific on both properties, so this
+   :hover-scoped override is needed to (a) compose the reveal's settled
+   position with the hover scale instead of one replacing the other, and
+   (b) swap in a snappy transition for the hover itself. It only applies
+   while :hover is active, so the initial scroll-reveal animation (which
+   happens before any hover) is untouched. */
+.js [data-ix="title-slide-in-2"].is-visible.white:hover {
+  transition: transform 400ms ease;
+  transform: translate(0, 0) scale(1.25);
+}
+
+/* ---------- Mobile navigation open/close (was Webflow navbar module) ---------- */
+/* The collapsed (hidden) state below 991px is still driven by base.css's
+   `.w-nav[data-collapse='medium'] .w-nav-menu { display: none }` rule, unchanged.
+   This just defines what happens when js/main.js adds/removes ".nav-open". */
+@media screen and (max-width: 991px) {
+  .w-nav .nav-menu.nav-open {
+    display: flex !important;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-12px);
+    animation: nav-menu-in var(--nav-duration, 300ms) ease forwards;
+  }
+
+  /* No-JS fallback: there is no hamburger click handler to open the menu, so
+     without this the nav would be permanently display:none below 991px and
+     the site would be unnavigable on mobile. Show it open/stacked instead -
+     not collapsible, but every link stays reachable. */
+  .no-js .nav-menu {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .no-js .menu-button {
+    display: none !important;
+  }
+}
+@keyframes nav-menu-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Smooth scrolling for in-page anchors (was Webflow "links" module) ---------- */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .white,
+  .js [data-ix] {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- Gallery slider active-slide state (was Webflow slider module) ---------- */
+.slider {
+  position: relative;
+  overflow: hidden;
+}
+.w-slider-mask {
+  display: flex;
+  transition: transform 500ms ease;
+  will-change: transform;
+}
+.w-slide {
+  flex: 0 0 100%;
+  width: 100%;
+}
+.w-slider-arrow-left,
+.w-slider-arrow-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 24px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.15);
+  border: 0;
+  padding: 0;
+}
+.w-slider-arrow-left {
+  left: 0;
+}
+.w-slider-arrow-right {
+  right: 0;
+}
+.w-slider-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 2;
+}
+.w-slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.w-slider-dot.w-active {
+  background: #fff;
+}
+
+/* Without JS, the slider degrades to a plain horizontally-scrollable strip:
+   all slides remain in the accessibility tree and reachable, nothing is hidden. */
+.no-js .w-slider-mask {
+  display: flex;
+  overflow-x: auto;
+  transition: none;
+  scroll-snap-type: x mandatory;
+}
+.no-js .w-slide {
+  scroll-snap-align: start;
+}
+.no-js .w-slider-arrow-left,
+.no-js .w-slider-arrow-right,
+.no-js .w-slider-nav {
+  display: none;
+}
