@@ -38,7 +38,7 @@ in this document required touching it.
 | Interaction | Old mechanism | New mechanism |
 |---|---|---|
 | Mobile nav open/close | `webflow.js` navbar module | `js/main.js` `initMobileNav()` — toggles a `.nav-open` class, driven by the *already-present* `data-collapse="medium"` / `data-duration="600"` attributes (base.css's original `[data-collapse='medium']` media-query rule still hides the menu by default below 991px; the JS/CSS only add what happens on open). Includes keyboard support (Enter/Space on the button), closes on outside click, `Escape`, choosing a link, or resizing past 991px. |
-| Gallery slider (6 photos, `index.html` + `nosotros.html`) | `webflow.js` slider module | `js/main.js` `initSliders()` — a small flexbox + `transform: translateX()` carousel, reading the markup's own `data-delay`, `data-autoplay`, `data-infinite`, `data-duration`, `data-hide-arrows`, `data-disable-swipe` attributes so the behavior (2s autoplay, infinite loop, 500ms transition) matches what was authored in Webflow. Dot navigation is built dynamically. Autoplay pauses on hover/focus; basic pointer-based swipe support included. |
+| Gallery slider (6 photos, `index.html` + `nosotros.html`) | `webflow.js` slider module | Originally a small hand-written flexbox + `transform: translateX()` carousel (`initSliders()`); **later replaced with the Splide library** after recurring bugs. See §11 — the row here is kept for historical record of the *first* replacement, from Webflow to hand-written JS. |
 | Scroll-triggered fade/slide-in (hero titles, section titles, 4 service cards) | `webflow.js` "IX" (legacy Interactions 1.0) engine, whose full interaction config was extracted from inside the `webflow.js` bundle itself (see the original audit) | `IntersectionObserver` in `js/main.js` (`initScrollReveal()`) adds an `.is-visible` class the first time each `[data-ix="…"]` element scrolls into view; `css/interactions.css` defines the matching opacity/transform/transition values (including the original stagger delays: 250ms / 750ms / 1250ms / 1600ms for the 4 service cards) so the choreography matches the original as closely as CSS allows. |
 | Hover-scale on the hero subtitle (Webflow's "Portfolio Interaction", targeting `.white`) | `webflow.js` IX hover trigger | Pure CSS `:hover` rule in `interactions.css`. **Found and fixed during testing:** the hero subtitle is *both* a hover target (`.white`) and a scroll-reveal target (`data-ix="title-slide-in-2"`), and both features set the `transform` property — the higher-specificity reveal rule was silently winning and the hover effect did nothing once the element had settled into view. Fixed with a combined, `:hover`-scoped selector that composes both transforms and restores a fast (400ms) transition just for the hover state, without touching the original reveal-in timing. |
 | Smooth scroll for in-page nav/footer anchors (`#Inicio`, `#Nosotros`, `#Services`, `#Contact`) | `webflow.js` "links" module | CSS `scroll-behavior: smooth` on `<html>` (with a `prefers-reduced-motion` override to disable it for users who've asked for that) |
@@ -280,3 +280,82 @@ samples within those ranges:
 **Not tested / cannot be tested in this environment:** real Apache
 `.htaccess` behavior, and actual outbound email delivery via `mail()` — both
 flagged in §8/§9 for verification after deployment.
+
+---
+
+## 11. Gallery carousel: hand-written JS → Splide
+
+The hand-written carousel described in §2 (`initSliders()`) went through two
+rounds of bug fixes post-launch (a `loading="lazy"` vs. transform-reveal
+timing conflict, then a `focusin`/`focusout` bubbling bug that reset the
+autoplay timer erratically) and still had reported issues. Rather than keep
+patching bespoke carousel logic, it was replaced entirely with
+[Splide](https://splidejs.com/) (v4.1.4, MIT license), a small,
+dependency-free, actively-maintained carousel library — chosen over Swiper
+(too many unused features for a simple 6-image gallery), GLightbox (a
+lightbox, not a carousel — wrong tool for this job), and another hand-written
+rewrite (same bug-risk category as what was being replaced).
+
+**What changed:**
+
+- `js/main.js`: `initSliders()` (~130 lines of custom carousel logic) was
+  deleted entirely and replaced with `initGallery()`, a ~30-line function that
+  mounts Splide on `.gallery-splide` elements. The autoplay speed is a single
+  named constant at the top of the file, `GALLERY_AUTOPLAY_INTERVAL_MS`
+  (currently `2000`) — change that one value to adjust timing; nothing else
+  in the file needs touching.
+- `index.html` / `nosotros.html`: the old `.slider.w-slider` markup (Webflow's
+  slider structure: `.w-slider-mask`, `.w-slide`, hand-written arrow buttons,
+  `.w-slider-nav` dots) was replaced with Splide's own markup convention
+  (`.splide > .splide__track > .splide__list > .splide__slide`). Splide
+  generates its own arrows/pagination dynamically at runtime — they are not
+  hand-authored in the HTML.
+- `css/base.css` and `css/interactions.css`: every `.w-slider*` /
+  `.w-slide` / `.w-icon-slider*` rule was removed (confirmed via a
+  project-wide grep that zero references remain anywhere in HTML/CSS/JS).
+- `css/style.css`: the two rules that existed solely for the old carousel
+  (`.slider`, `.image_inslider`, plus one responsive override) were removed —
+  the only edit made to this otherwise-untouched "pristine" file, and narrow
+  enough to match the file's existing precedent of small targeted fixes.
+- New files: `js/vendor/splide.min.js`, `css/vendor/splide-core.min.css`
+  (Splide's *unstyled*, structure-only CSS build — deliberately chosen over
+  the themed build so the gallery's look could be authored from scratch to
+  match this site, rather than overriding a library theme), and
+  `js/vendor/splide.LICENSE.txt`. Both self-hosted (no CDN), consistent with
+  how Google Fonts was self-hosted in §4 — this project has no runtime
+  dependency on any third-party server.
+- New file `css/gallery.css`: all of the gallery's visible styling (sizing,
+  flat rectangular arrow buttons, circular pagination dots, hover/focus
+  states, the `.no-js` fallback). Written to match the site's existing flat
+  design language (no border-radius or shadows anywhere else on the site,
+  color-only hover transitions) — Splide's own default theme was not used.
+
+**Behavior preserved / added:**
+
+- Autoplay (2s interval), infinite loop, pauses on hover and on keyboard
+  focus — same as before, now handled by Splide's own tested `Autoplay`
+  component instead of custom timer logic.
+- Spanish ARIA labels for all generated controls (arrows, pagination dots,
+  play/pause) via Splide's `i18n` option.
+- Keyboard `Left`/`Right` arrow navigation while focus is inside the
+  carousel — an *additive* improvement (`keyboard: true`); the old
+  implementation didn't have this.
+- No-JS fallback: `css/gallery.css` overrides Splide's default
+  `visibility: hidden` (which normally stays hidden until Splide's JS mounts)
+  so that without JavaScript, all 6 photos still render, stacked vertically
+  at full width — following the same `.no-js`/`.js` progressive-enhancement
+  pattern already used site-wide (see §2, "Touch-device detection").
+
+**Verified during testing:** desktop mouse (arrow click, dot click), full
+keyboard navigation and focus-based autoplay pause/resume, touch swipe on a
+simulated mobile viewport, autoplay timing consistency (~2000ms ± rendering
+jitter), zero console errors/failed requests across the same viewport matrix
+used in §10, and the no-JS fallback with JavaScript explicitly disabled.
+
+One easy-to-misread detail if this component is touched again: Splide's
+`type: 'loop'` mode clones a couple of slides at each end of the track for
+seamless wraparound, so `.gallery-splide .splide__slide` matches more DOM
+elements than there are real photos — any future script or CSS that needs to
+find "the real active slide" should exclude
+`.splide__slide--clone` (e.g.
+`.splide__slide.is-active:not(.splide__slide--clone)`).

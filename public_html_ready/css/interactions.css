@@ -171,115 +171,26 @@ html {
   }
 }
 
-/* ---------- Gallery slider active-slide state (was Webflow slider module) ---------- */
-.slider {
-  position: relative;
-  overflow: hidden;
-}
-.w-slider-mask {
-  display: flex;
-  transition: transform 500ms ease;
-  will-change: transform;
-}
-.w-slide {
-  flex: 0 0 100%;
-  width: 100%;
-}
-.w-slider-arrow-left,
-.w-slider-arrow-right {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  cursor: pointer;
-  color: #fff;
-  font-size: 24px;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.15);
-  border: 0;
-  padding: 0;
-}
-.w-slider-arrow-left {
-  left: 0;
-}
-.w-slider-arrow-right {
-  right: 0;
-}
-.w-slider-nav {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  z-index: 2;
-}
-.w-slider-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-.w-slider-dot.w-active {
-  background: #fff;
-}
-
-/* Without JS, the slider degrades to a plain horizontally-scrollable strip:
-   all slides remain in the accessibility tree and reachable, nothing is hidden. */
-.no-js .w-slider-mask {
-  display: flex;
-  overflow-x: auto;
-  transition: none;
-  scroll-snap-type: x mandatory;
-}
-.no-js .w-slide {
-  scroll-snap-align: start;
-}
-.no-js .w-slider-arrow-left,
-.no-js .w-slider-arrow-right,
-.no-js .w-slider-nav {
-  display: none;
-}
-
 /* ---------- Native <button> reset ---------- */
-/* The hamburger toggle and slider arrows are real <button> elements now
-   (were <div role="button">), for correct semantics and free keyboard
-   activation. This neutralizes default browser button chrome so they still
-   look exactly like the plain divs they replaced. */
-.menu-button,
-.w-slider-arrow-left,
-.w-slider-arrow-right {
+/* The hamburger toggle is a real <button> element (was <div role="button">),
+   for correct semantics and free keyboard activation. This neutralizes
+   default browser button chrome so it still looks exactly like the plain
+   div it replaced (keeps base.css's padding:18px, its clickable/visual size). */
+.menu-button {
   background: none;
   border: 0;
   margin: 0;
   -webkit-appearance: none;
   appearance: none;
 }
-/* .menu-button keeps base.css's padding:18px (its clickable/visual size);
-   the slider arrows never had explicit padding, so zero it to match the
-   plain <div> they replaced (default browser button padding would otherwise
-   nudge their absolutely-positioned icon off-center). */
-.w-slider-arrow-left,
-.w-slider-arrow-right {
-  padding: 0;
-}
 
 /* ---------- Visible keyboard focus ---------- */
-/* base.css (inherited Webflow framework CSS) sets outline:0 on these controls.
-   Restoring a visible focus-visible indicator here - keyboard-only, so it
-   doesn't add an outline on mouse click - fixes that without changing the
-   default (non-focused) appearance at all. */
+/* base.css (inherited Webflow framework CSS) sets outline:0 on the nav
+   toggle. Restoring a visible focus-visible indicator here - keyboard-only,
+   so it doesn't add an outline on mouse click - fixes that without changing
+   the default (non-focused) appearance at all. The gallery's own focus
+   styling comes from gallery.css alongside the rest of its look. */
 .menu-button:focus-visible,
-.w-slider-arrow-left:focus-visible,
-.w-slider-arrow-right:focus-visible,
-.w-slider-dot:focus-visible,
 .nav-link:focus-visible,
 .footerlink:focus-visible,
 .button:focus-visible {

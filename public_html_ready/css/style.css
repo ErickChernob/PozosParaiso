@@ -580,17 +580,6 @@ p {
   margin-top: 20px;
 }
 
-.slider {
-  align-self: center;
-  width: 100%;
-  height: 80vh;
-  display: block;
-}
-
-.image_inslider {
-  width: 100%;
-}
-
 html.w-mod-js [data-ix="title-slide-in-1"], html.w-mod-js [data-ix="title-slide-in-2"], html.w-mod-js [data-ix="fade-in-on-scroll"], html.w-mod-js [data-ix="services-slide-up-1"], html.w-mod-js [data-ix="services-slide-up-2"], html.w-mod-js [data-ix="services-slide-up-3"], html.w-mod-js [data-ix="services-slide-up-4"] {
   opacity: 0;
 }
@@ -875,10 +864,6 @@ html.w-mod-js [data-ix="page-load-fade-in"] {
     padding-top: 20px;
     padding-left: 20px;
     padding-right: 20px;
-  }
-
-  .slider {
-    height: 100%;
   }
 }
 

@@ -1,0 +1,133 @@
+/* Gallery carousel (Splide) - visual styling.
+   Splide itself (js/vendor/splide.min.js + css/vendor/splide-core.min.css) is
+   the vendored library and ships with NO default look - splide-core.min.css
+   is deliberately the "structural only" build (layout/positioning, no colors,
+   no border-radius, no shadows). Everything visible below is this project's
+   own design, matching the rest of the site: flat, sharp corners, no shadows,
+   subtle color-only hover states. See MIGRATION_NOTES.md for why Splide
+   replaced the old hand-written carousel.
+
+   To change the autoplay speed, see GALLERY_AUTOPLAY_INTERVAL_MS at the top
+   of js/main.js - not this file. */
+
+/* ---------- Sizing (replaces the old .slider / .image_inslider rules) ---------- */
+.gallery-splide {
+  align-self: center;
+  width: 100%;
+  height: 80vh;
+  display: block;
+}
+.gallery-splide .splide__track,
+.gallery-splide .splide__slide {
+  height: 100%;
+}
+.gallery-splide .splide__slide img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 991px) {
+  .gallery-splide {
+    height: 100%;
+  }
+}
+
+/* ---------- Arrows ---------- */
+/* Flat, square, semi-transparent dark overlay over the photo - matches the
+   site's overall sharp-cornered look (no border-radius anywhere else on the
+   site except circular pagination dots, which is the one universally
+   understood carousel exception). */
+.gallery-splide .splide__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 67, 104, 0.35); /* var(--dark-slate-blue) at low opacity */
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.gallery-splide .splide__arrow svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+.gallery-splide .splide__arrow:hover:not(:disabled) {
+  background-color: var(--dark-slate-blue);
+}
+.gallery-splide .splide__arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.gallery-splide .splide__arrow--prev {
+  left: 0;
+}
+.gallery-splide .splide__arrow--next {
+  right: 0;
+}
+.gallery-splide .splide__arrow:focus-visible {
+  outline: 2px solid var(--steel-blue);
+  outline-offset: -2px;
+}
+
+/* ---------- Pagination dots ---------- */
+.gallery-splide .splide__pagination {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 2;
+}
+.gallery-splide .splide__pagination__page {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 0;
+  padding: 0;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.gallery-splide .splide__pagination__page.is-active {
+  background: #fff;
+}
+.gallery-splide .splide__pagination__page:focus-visible {
+  outline: 2px solid var(--steel-blue);
+  outline-offset: 2px;
+}
+
+/* ---------- No-JS fallback ---------- */
+/* Splide's core CSS hides the whole component (visibility:hidden) until its
+   own JS mounts and adds .is-initialized/.is-rendered. Without JS that would
+   mean the entire gallery silently vanishes - so force it visible and fall
+   back to a plain stacked list of full-width photos, matching how the rest
+   of this site degrades without JavaScript (see interactions.css). */
+.no-js .gallery-splide {
+  visibility: visible;
+  height: auto;
+}
+.no-js .gallery-splide .splide__list {
+  display: block;
+}
+.no-js .gallery-splide .splide__slide {
+  height: auto;
+  margin-bottom: 10px;
+}
+.no-js .gallery-splide .splide__slide img {
+  height: auto;
+  object-fit: initial;
+}
+.no-js .gallery-splide .splide__arrows,
+.no-js .gallery-splide .splide__pagination {
+  display: none;
+}

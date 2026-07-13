@@ -1,14 +1,21 @@
 /*
  * Pozos Paraíso - site behavior.
- * Vanilla JS, no dependencies. Replaces Webflow's navbar / slider / IX (interactions)
- * runtime modules. See MIGRATION_NOTES.md for what each piece used to be.
+ * Vanilla JS, no dependencies except Splide (js/vendor/splide.min.js, loaded
+ * before this file) for the photo gallery. Replaces Webflow's navbar / IX
+ * (interactions) runtime modules. See MIGRATION_NOTES.md for what each piece
+ * used to be.
  */
+
+// Gallery carousel autoplay speed, in milliseconds. The only place you need
+// to change this to adjust how fast the "Galería" carousel advances.
+var GALLERY_AUTOPLAY_INTERVAL_MS = 2000;
+
 (function () {
   'use strict';
 
   document.addEventListener('DOMContentLoaded', function () {
     initMobileNav();
-    initSliders();
+    initGallery();
     initScrollReveal();
     initContactForms();
   });
@@ -62,132 +69,42 @@
     });
   }
 
-  /* ---------- Gallery slider ---------- */
-  function initSliders() {
-    var sliders = document.querySelectorAll('.w-slider');
-    sliders.forEach(function (slider) {
-      var mask = slider.querySelector('.w-slider-mask');
-      var slides = Array.prototype.slice.call(slider.querySelectorAll('.w-slide'));
-      if (!mask || slides.length < 2) return;
-
-      var infinite = slider.getAttribute('data-infinite') !== 'false';
-      var autoplay = slider.getAttribute('data-autoplay') === 'true';
-      var delay = parseInt(slider.getAttribute('data-delay'), 10) || 4000;
-      var duration = parseInt(slider.getAttribute('data-duration'), 10) || 500;
-      var hideArrows = slider.getAttribute('data-hide-arrows') === 'true';
-      var disableSwipe = slider.getAttribute('data-disable-swipe') === 'true';
-
-      var leftArrow = slider.querySelector('.w-slider-arrow-left');
-      var rightArrow = slider.querySelector('.w-slider-arrow-right');
-      var navWrap = slider.querySelector('.w-slider-nav');
-
-      mask.style.transitionDuration = duration + 'ms';
-      if (hideArrows) {
-        if (leftArrow) leftArrow.style.display = 'none';
-        if (rightArrow) rightArrow.style.display = 'none';
-      }
-
-      var index = 0;
-      var timer = null;
-
-      // Build dot navigation.
-      var dots = [];
-      if (navWrap) {
-        slides.forEach(function (_, i) {
-          var dot = document.createElement('button');
-          dot.type = 'button';
-          dot.className = 'w-slider-dot';
-          dot.setAttribute('aria-label', 'Ir a la diapositiva ' + (i + 1));
-          dot.addEventListener('click', function () {
-            goTo(i);
-            restartAutoplay();
-          });
-          navWrap.appendChild(dot);
-          dots.push(dot);
-        });
-      }
-
-      function render() {
-        mask.style.transform = 'translateX(-' + index * 100 + '%)';
-        dots.forEach(function (dot, i) {
-          dot.classList.toggle('w-active', i === index);
-        });
-      }
-
-      function goTo(i) {
-        if (infinite) {
-          index = (i + slides.length) % slides.length;
-        } else {
-          index = Math.max(0, Math.min(slides.length - 1, i));
-        }
-        render();
-      }
-
-      function next() {
-        goTo(index + 1);
-      }
-      function prev() {
-        goTo(index - 1);
-      }
-
-      function startAutoplay() {
-        if (!autoplay) return;
-        timer = window.setInterval(next, delay);
-      }
-      function stopAutoplay() {
-        if (timer) {
-          window.clearInterval(timer);
-          timer = null;
-        }
-      }
-      function restartAutoplay() {
-        stopAutoplay();
-        startAutoplay();
-      }
-
-      // Real <button> elements, so Enter/Space already trigger click natively.
-      function bindArrow(el, action) {
-        if (!el) return;
-        el.addEventListener('click', function () { action(); restartAutoplay(); });
-      }
-      bindArrow(leftArrow, prev);
-      bindArrow(rightArrow, next);
-
-      slider.addEventListener('mouseenter', stopAutoplay);
-      slider.addEventListener('mouseleave', startAutoplay);
-      slider.addEventListener('focusin', stopAutoplay);
-      // focusin/focusout fire on every focus change between the slider's own
-      // children too (both arrows + every dot are real buttons), not just when
-      // focus truly enters/leaves the component. Without checking relatedTarget,
-      // tabbing between those controls tears the interval down and recreates it
-      // on every single move, making autoplay's effective timing depend on
-      // whenever that last happened instead of a steady delay - only resume
-      // when focus is actually moving outside the slider.
-      slider.addEventListener('focusout', function (e) {
-        if (!slider.contains(e.relatedTarget)) {
-          startAutoplay();
-        }
-      });
-
-      if (!disableSwipe) {
-        var startX = null;
-        mask.addEventListener('pointerdown', function (e) {
-          startX = e.clientX;
-          stopAutoplay();
-        });
-        mask.addEventListener('pointerup', function (e) {
-          if (startX === null) return;
-          var delta = e.clientX - startX;
-          startX = null;
-          if (Math.abs(delta) > 40) {
-            delta < 0 ? next() : prev();
-          }
-          startAutoplay();
-        });
-      }
-
-      render();
-      startAutoplay();
+  /* ---------- Gallery carousel (Splide) ---------- */
+  // Replaces a hand-written carousel that had two rounds of subtle bugs
+  // (native lazy-loading vs. transform-based reveal, then focus-event
+  // bubbling resetting the autoplay timer). Splide is a well-maintained,
+  // dependency-free library that already handles these edge cases; see
+  // js/vendor/splide.min.js (never edit that file - it's the vendored
+  // library, update it by replacing the whole file with a newer release).
+  function initGallery() {
+    if (typeof window.Splide !== 'function') return; // vendor script failed to load; images/heading still render fine without it
+    document.querySelectorAll('.gallery-splide').forEach(function (el) {
+      new window.Splide(el, {
+        type: 'loop',
+        perPage: 1,
+        speed: 500,
+        arrows: true,
+        pagination: true,
+        autoplay: true,
+        interval: GALLERY_AUTOPLAY_INTERVAL_MS,
+        pauseOnHover: true,
+        pauseOnFocus: true,
+        keyboard: true, // Left/Right arrow keys navigate while focus is inside the carousel
+        i18n: {
+          prev: 'Diapositiva anterior',
+          next: 'Siguiente diapositiva',
+          first: 'Ir a la primera diapositiva',
+          last: 'Ir a la última diapositiva',
+          slideX: 'Ir a la diapositiva %s',
+          pageX: 'Ir a la página %s',
+          play: 'Iniciar reproducción automática',
+          pause: 'Pausar reproducción automática',
+          carousel: 'carrusel',
+          slide: 'diapositiva',
+          select: 'Selecciona una diapositiva para mostrar',
+          slideLabel: '%s de %s',
+        },
+      }).mount();
     });
   }
 

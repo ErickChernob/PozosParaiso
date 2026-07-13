@@ -26,7 +26,9 @@
   <link href="css/fonts.css" rel="stylesheet" type="text/css">
   <link href="css/base.css" rel="stylesheet" type="text/css">
   <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link href="css/vendor/splide-core.min.css" rel="stylesheet" type="text/css">
   <link href="css/interactions.css" rel="stylesheet" type="text/css">
+  <link href="css/gallery.css" rel="stylesheet" type="text/css">
 
   <link href="images/favicon.png" rel="icon" type="image/png">
   <link href="images/webclip.png" rel="apple-touch-icon">
@@ -65,23 +67,18 @@
   </div>
   <div class="gallery">
     <h2 data-ix="title-slide-in-1" class="heading gal">Galería</h2>
-    <div data-delay="2000" data-animation="slide" class="slider w-slider" data-autoplay="true" data-hide-arrows="false" data-disable-swipe="false" data-nav-spacing="3" data-duration="500" data-infinite="true" aria-roledescription="carousel" aria-label="Galería de fotos">
-      <div class="w-slider-mask">
-        <div class="w-slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-fotografico.jpeg" class="image_inslider"></div>
-        <div class="w-slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-2.jpeg" class="image_inslider"></div>
-        <div class="w-slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-3.jpeg" class="image_inslider"></div>
-        <div class="w-slide"><img src="images/album-4.jpeg" width="1024" height="768" alt="Fotografía de las instalaciones de Pozos Paraíso" class="image_inslider"></div>
-        <div class="w-slide"><img src="images/album-5.jpeg" width="1024" height="768" alt="Fotografía de las instalaciones de Pozos Paraíso" class="image_inslider"></div>
-        <div class="w-slide"><img src="images/album-6.jpeg" width="1024" height="768" alt="Fotografía de las instalaciones de Pozos Paraíso" class="image_inslider"></div>
+    <section class="splide gallery-splide" aria-label="Galería de fotos">
+      <div class="splide__track">
+        <ul class="splide__list">
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-fotografico.jpeg"></li>
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-2.jpeg"></li>
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-3.jpeg"></li>
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-4.jpeg"></li>
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-5.jpeg"></li>
+          <li class="splide__slide"><img alt="Fotografía de las instalaciones de Pozos Paraíso" width="1024" height="768" src="images/album-6.jpeg"></li>
+        </ul>
       </div>
-      <button type="button" class="w-slider-arrow-left" aria-label="Diapositiva anterior">
-        <div class="w-icon-slider-left"></div>
-        </button>
-      <button type="button" class="w-slider-arrow-right" aria-label="Siguiente diapositiva">
-        <div class="w-icon-slider-right"></div>
-        </button>
-      <div class="w-slider-nav w-round"></div>
-    </div>
+    </section>
   </div>
   </main>
   <div class="footer-content">
@@ -107,6 +104,7 @@
       </div>
     </div>
   </div>
+  <script src="js/vendor/splide.min.js" defer></script>
   <script src="js/main.js" defer></script>
 </body>
 </html>

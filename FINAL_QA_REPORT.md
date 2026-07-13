@@ -7,6 +7,12 @@ deployment. The deployable output is `public_html_ready/` (and
 `public_html_ready.zip`); this report and `DEPLOYMENT_GUIDE.md` live outside
 that folder since they aren't meant to be uploaded to the web server.
 
+> **Update:** the gallery slider referenced throughout this report (as it
+> existed at the time of this QA pass) has since been replaced with the
+> Splide library. See `independent-static-site/MIGRATION_NOTES.md` §11 for
+> what changed and why; the slider-specific notes below describe the
+> hand-written implementation that predated that change.
+
 ---
 
 ## 1. Pages tested
